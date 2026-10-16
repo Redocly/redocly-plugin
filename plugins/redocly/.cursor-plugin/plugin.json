@@ -8,5 +8,6 @@
   "homepage": "https://redocly.com/docs",
   "repository": "https://github.com/Redocly/redocly-plugin",
   "license": "MIT",
-  "keywords": ["redocly", "openapi", "asyncapi", "arazzo", "api-docs", "lint", "documentation"]
+  "keywords": ["redocly", "openapi", "asyncapi", "arazzo", "api-docs", "lint", "documentation"],
+  "mcpServers": "./.mcp.json"
 }
