@@ -31,14 +31,14 @@ MCP server only, in any MCP client: add `https://redocly.com/mcp` as a remote se
 
 ## What you get
 
-- **Skills** that the agent loads when your request matches one: Redocly CLI commands, `redocly.yaml` configuration, custom lint rules, and Markdown linting with `redocly recheck`. The Redocly [skills index](https://redocly.com/.well-known/agent-skills/index.json) lists them.
-- **The Redocly MCP server** at `https://redocly.com/mcp`. Its `discover` and `execute` tools search the Redocly documentation and read the API descriptions published on redocly.com. Its `submit-feedback` tool reports a wrong or incomplete page to the Redocly documentation team.
+- **Skills** that the agent loads when your request matches one: Redocly CLI commands, `redocly.yaml` configuration, custom lint rules, Markdown linting with `redocly recheck`, and Redocly docs projects (setup, pages, and API reference docs). The Redocly [skills index](https://redocly.com/.well-known/agent-skills/index.json) lists them.
+- **The Redocly MCP server** at `https://redocly.com/mcp`. Its `discover` and `execute` tools search and read the current Redocly documentation. Its `submit-feedback` tool reports a wrong or incomplete page to the Redocly documentation team.
 
 Example prompts:
 
 - "Lint my OpenAPI description with Redocly CLI and explain each problem."
 - "Write a Redocly lint rule that requires an operationId on every operation."
-- "How do I configure redocly.yaml for my project?"
+- "Set up a Redocly docs site for my OpenAPI description."
 
 If the agent answers from memory, name the server in the prompt, for example "Check the Redocly MCP server before you answer."
 
