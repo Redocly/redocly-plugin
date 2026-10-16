@@ -2,7 +2,7 @@
   "name": "redocly",
   "displayName": "Redocly",
   "logo": "./assets/logo.png",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Write, lint and document APIs with Redocly. Skills for Redocly CLI and lint rules, plus live search across the Redocly documentation through the Redocly MCP server.",
   "author": { "name": "Redocly", "email": "team@redocly.com", "url": "https://redocly.com" },
   "homepage": "https://redocly.com/docs",
