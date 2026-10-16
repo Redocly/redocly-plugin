@@ -1,0 +1,35 @@
+name: Bug report
+description: Report a problem with the Redocly plugin.
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened
+      description: Include the steps, the prompt you gave the agent, and what you expected instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: client
+    attributes:
+      label: AI client
+      options:
+        - Claude Code
+        - Codex
+        - Cursor
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Client and plugin versions
+      placeholder: Claude Code 2.1.301, plugin 0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error messages or logs
+      description: Remove tokens and other secrets first.
+      render: text

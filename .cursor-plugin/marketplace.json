@@ -1,0 +1,12 @@
+{
+  "name": "redocly",
+  "owner": { "name": "Redocly", "email": "team@redocly.com" },
+  "metadata": { "description": "Redocly plugins for AI coding agents." },
+  "plugins": [
+    {
+      "name": "redocly",
+      "source": "./plugins/redocly",
+      "description": "Write, lint and document APIs with Redocly. Skills for Redocly CLI and lint rules, plus live search across the Redocly documentation through the Redocly MCP server."
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# Files operating systems drop into folders. The Claude directory rejects a plugin that contains one.
+.DS_Store
+[Tt]humbs.db
+[Dd]esktop.ini
+__MACOSX/

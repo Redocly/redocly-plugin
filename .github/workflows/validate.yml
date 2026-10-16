@@ -1,0 +1,34 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Every Monday at 06:00 UTC, to catch a Claude Code release that breaks validation.
+    # GitHub sends the failure notice only to the person who last changed this line.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # A pull request runs on a merge commit. Its first parent is the base branch.
+          fetch-depth: 2
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Install the latest Claude Code
+        run: |
+          npm install --global @anthropic-ai/claude-code@latest
+          echo "Claude Code $(claude --version)" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Check the marketplaces and the plugin
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && 'HEAD^1' || '' }}
+        run: .github/scripts/check-plugin.sh "$BASE"
