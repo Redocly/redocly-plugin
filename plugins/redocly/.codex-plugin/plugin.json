@@ -1,0 +1,31 @@
+{
+  "name": "redocly",
+  "version": "0.1.0",
+  "description": "Write, lint and document APIs with Redocly. Skills for Redocly CLI and lint rules, plus live search across the Redocly documentation through the Redocly MCP server.",
+  "author": { "name": "Redocly", "email": "team@redocly.com", "url": "https://redocly.com" },
+  "homepage": "https://redocly.com/docs",
+  "repository": "https://github.com/Redocly/redocly-plugin",
+  "license": "MIT",
+  "keywords": ["redocly", "openapi", "asyncapi", "arazzo", "api-docs", "lint", "documentation"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Redocly",
+    "shortDescription": "Write, lint and document APIs.",
+    "longDescription": "Write, lint and document APIs with Redocly. Skills for Redocly CLI and lint rules, plus live search across the Redocly documentation through the Redocly MCP server.",
+    "developerName": "Redocly",
+    "logo": "./assets/logo.png",
+    "composerIcon": "./assets/logo.png",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://redocly.com",
+    "privacyPolicyURL": "https://redocly.com/privacy-notice",
+    "termsOfServiceURL": "https://redocly.com/subscription-agreement",
+    "supportURL": "https://redocly.com/contact-us",
+    "defaultPrompt": [
+      "Lint my OpenAPI description with Redocly CLI and explain each problem.",
+      "Write a Redocly lint rule that requires an operationId on every operation.",
+      "How do I configure redocly.yaml for my project?"
+    ]
+  }
+}

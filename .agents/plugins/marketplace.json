@@ -1,0 +1,12 @@
+{
+  "name": "redocly",
+  "interface": { "displayName": "Redocly" },
+  "plugins": [
+    {
+      "name": "redocly",
+      "source": { "source": "local", "path": "./plugins/redocly" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
+    }
+  ]
+}

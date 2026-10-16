@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "redocly": {
+      "type": "http",
+      "url": "https://redocly.com/mcp"
+    }
+  }
+}

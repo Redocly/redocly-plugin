@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Redocly MCP server docs
+    url: https://redocly.com/docs/realm/customization/mcp-server/redocly-mcp
+    about: Set up the Redocly MCP server in any AI client.
+  - name: Contact Redocly
+    url: https://redocly.com/contact-us
+    about: Questions about Redocly products.
