@@ -1,0 +1,36 @@
+name: Required Checklist
+
+# pull_request_target runs the copy of this workflow on the base branch, so a pull request cannot change the check.
+# The job reads only the pull request body. It checks out no code.
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  required-checklist:
+    # Dependabot and the context sync App open pull requests with no checklist. A code owner reviews each one.
+    if: >-
+      !(github.event.pull_request.head.repo.full_name == github.repository
+      && contains(fromJSON('["dependabot[bot]", "redocly-context-sync[bot]"]'), github.event.pull_request.user.login))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for required checkboxes
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const REQUIRED_CHECKLIST_PATTERNS = [
+              '- [x] Security impact of change has been considered',
+              '- [x] Code follows company security practices and guidelines',
+            ];
+            const description = (context.payload.pull_request.body ?? '').replaceAll('- [X]', '- [x]');
+            const missingCheckboxes = REQUIRED_CHECKLIST_PATTERNS.filter(
+              (checkbox) => !description.includes(checkbox),
+            );
+            if (missingCheckboxes.length > 0) {
+              core.setFailed(
+                `Check these items in the Security section of the pull request description:\n${missingCheckboxes.join('\n')}`,
+              );
+            }
