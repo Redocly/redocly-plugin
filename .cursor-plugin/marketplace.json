@@ -6,7 +6,8 @@
     {
       "name": "redocly",
       "source": "./plugins/redocly",
-      "description": "Write, lint and document APIs with Redocly. Skills for Redocly CLI, lint rules and Redocly docs projects, plus live search across the Redocly documentation through the Redocly MCP server."
+      "description": "Write, lint and document APIs with Redocly. Skills for Redocly CLI, lint rules and Redocly docs projects, plus live search across the Redocly documentation through the Redocly MCP server.",
+      "category": "Productivity"
     }
   ]
 }
