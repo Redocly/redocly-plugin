@@ -28,6 +28,8 @@ jobs:
         run: |
           npm install --global @anthropic-ai/claude-code@latest
           echo "Claude Code $(claude --version)" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Install mcp-publisher
+        run: .github/scripts/install-mcp-publisher.sh
       - name: Check the marketplaces and the plugin
         env:
           BASE: ${{ github.event_name == 'pull_request' && 'HEAD^1' || '' }}

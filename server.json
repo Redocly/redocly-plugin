@@ -1,0 +1,26 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.redocly/redocly-mcp",
+  "title": "Redocly",
+  "description": "Search and read the current Redocly documentation, and report a wrong or incomplete page.",
+  "websiteUrl": "https://redocly.com/docs/realm/customization/mcp-server/redocly-mcp",
+  "repository": {
+    "url": "https://github.com/Redocly/redocly-plugin",
+    "source": "github",
+    "id": "1420889732"
+  },
+  "version": "1.0.0",
+  "icons": [
+    {
+      "src": "https://cdn.redocly.com/images/logo.png",
+      "mimeType": "image/png",
+      "sizes": ["128x128"]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://redocly.com/mcp"
+    }
+  ]
+}
