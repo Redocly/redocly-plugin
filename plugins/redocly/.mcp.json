@@ -2,7 +2,13 @@
   "mcpServers": {
     "redocly": {
       "type": "http",
-      "url": "https://redocly.com/mcp"
+      "url": "https://redocly.com/mcp",
+      "headers": {
+        "X-Redocly-MCP-Source": "redocly-plugin"
+      },
+      "http_headers": {
+        "X-Redocly-MCP-Source": "redocly-plugin"
+      }
     }
   }
 }

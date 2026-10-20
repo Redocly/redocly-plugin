@@ -13,6 +13,7 @@ The skills are copies of the skills in the Redocly [skills index](https://redocl
 ## MCP server
 
 `.mcp.json` registers the Redocly MCP server at `https://redocly.com/mcp` over HTTP.
+Each request has the header `X-Redocly-MCP-Source: redocly-plugin`, so Redocly can count the requests that come from the plugin. Claude Code and Cursor read the header from `headers`, and Codex reads it from `http_headers`.
 The server searches and reads the current Redocly documentation.
 It needs no account or token.
 Its documentation tools only read data. Its `submit-feedback` tool sends a report about a wrong or incomplete page to the Redocly documentation team, and it is the only tool that writes data.
