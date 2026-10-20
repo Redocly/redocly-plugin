@@ -72,8 +72,9 @@ for marketplace in .claude-plugin/marketplace.json .cursor-plugin/marketplace.js
 done
 
 echo "$SERVER_JSON has the fields that the MCP Registry requires, and its description fits in 100 characters."
-jq -e '.name | test("^[a-zA-Z0-9.-]+/[a-zA-Z0-9._-]+$")' "$SERVER_JSON" > /dev/null \
-  || fail "$SERVER_JSON needs a name in the form namespace/name."
+[ -f "$SERVER_JSON" ] || fail "$SERVER_JSON is missing. The MCP Registry entry needs it."
+jq -e '.name | test("^com\\.redocly/[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$")' "$SERVER_JSON" > /dev/null \
+  || fail "$SERVER_JSON needs a name in the form com.redocly/<name>, because the key of the publish workflow proves only redocly.com."
 server_version="$(jq -r .version "$SERVER_JSON")"
 [[ "$server_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "$SERVER_JSON needs an x.y.z version."
 jq -e '.description | type == "string" and length > 0 and length <= 100' "$SERVER_JSON" > /dev/null \
@@ -84,8 +85,8 @@ echo "$SERVER_JSON points at the MCP server of the plugin, and its icons are htt
 server_url="$(jq -r '.remotes[0].url' "$SERVER_JSON")"
 jq -e --arg url "$server_url" '.mcpServers[] | select(.url == $url)' "$PLUGIN_DIR/.mcp.json" > /dev/null \
   || fail "$SERVER_JSON points at $server_url, which is not in $PLUGIN_DIR/.mcp.json."
-jq -e '[.icons[]?.src | startswith("https://")] | all' "$SERVER_JSON" > /dev/null \
-  || fail "$SERVER_JSON has an icon that is not an https URL."
+jq -e '.icons // [] | type == "array" and all(.[]; .src | type == "string" and startswith("https://"))' "$SERVER_JSON" > /dev/null \
+  || fail "$SERVER_JSON needs icons as a list with an https URL in each src."
 
 if [ -n "$base" ]; then
   git rev-parse --verify --quiet "$base^{commit}" > /dev/null || fail "The base $base is not a commit."
@@ -117,6 +118,7 @@ if ! curl -fsS --max-time 10 --retry 2 "$REGISTRY/v0/health" > /dev/null; then
 fi
 if ! command -v mcp-publisher > /dev/null; then
   publisher_dir="$(mktemp -d)"
+  trap 'rm -rf "$publisher_dir"' EXIT
   .github/scripts/install-mcp-publisher.sh "$publisher_dir"
   PATH="$publisher_dir:$PATH"
 fi

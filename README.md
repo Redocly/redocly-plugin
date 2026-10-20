@@ -31,7 +31,7 @@ MCP server only, in any MCP client: add `https://redocly.com/mcp` as a remote se
 
 ## MCP Registry
 
-[server.json](server.json) publishes the Redocly MCP server to the official [MCP Registry](https://registry.modelcontextprotocol.io) as `com.redocly/redocly-mcp`, so an MCP client that reads the registry can add the server from there. The [GitHub MCP Registry](https://github.com/mcp) lists it once GitHub completes the onboarding.
+The Redocly MCP server is in the official [MCP Registry](https://registry.modelcontextprotocol.io) as `com.redocly/mcp`. An MCP client that reads the registry can add the server from there. The [GitHub MCP Registry](https://github.com/mcp), which VS Code and GitHub Copilot use, lists it once GitHub completes the onboarding.
 
 ## What you get
 

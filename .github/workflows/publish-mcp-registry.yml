@@ -1,9 +1,13 @@
 name: Publish to MCP Registry
 
 # Publishes server.json to the official MCP Registry at https://registry.modelcontextprotocol.io.
-# Run it by hand after a change to server.json is on main. The registry keeps every version it has seen, so raise
-# the version in server.json with every change. The GitHub MCP Registry syncs from the official registry.
+# A push to main that changes server.json starts it, and a reviewer of the environment approves the run.
+# Run it by hand to retry a failed publish. The registry keeps every version it has seen, so raise the version
+# in server.json with every change. The GitHub MCP Registry syncs from the official registry.
 on:
+  push:
+    branches: [main]
+    paths: [server.json]
   workflow_dispatch:
 
 permissions:
@@ -22,6 +26,8 @@ jobs:
     environment: mcp-registry-publish
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Install mcp-publisher
         run: .github/scripts/install-mcp-publisher.sh
       - name: Validate server.json

@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "com.redocly/redocly-mcp",
+  "name": "com.redocly/mcp",
   "title": "Redocly",
   "description": "Search and read the Redocly product docs, guides and blog on redocly.com, and report a wrong page.",
   "websiteUrl": "https://redocly.com/docs/realm/customization/mcp-server/redocly-mcp",
@@ -20,7 +20,13 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://redocly.com/mcp"
+      "url": "https://redocly.com/mcp",
+      "headers": [
+        {
+          "name": "X-Redocly-MCP-Source",
+          "value": "mcp-registry"
+        }
+      ]
     }
   ]
 }
