@@ -26,6 +26,13 @@ versions="$(jq -r .version "$PLUGIN_DIR"/.*-plugin/plugin.json | sort -u)"
 [[ "$versions" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "Found these versions: ${versions//$'\n'/, }"
 version="$versions"
 
+echo 'The MCP server sends the same headers to every client, with the plugin version.'
+mcp="$PLUGIN_DIR/.mcp.json"
+jq -e '[.mcpServers[] | .headers == .http_headers] | all' "$mcp" > /dev/null \
+  || fail "$mcp must have equal headers and http_headers: Claude Code and Cursor read headers, Codex reads http_headers."
+jq -e --arg version "$version" '[.mcpServers[].headers["X-Redocly-Plugin-Version"]] | all(. == $version)' "$mcp" > /dev/null \
+  || fail "Set X-Redocly-Plugin-Version to $version in $mcp."
+
 echo 'Every plugin manifest has a name, a version and a description, and every ./ path in it exists.'
 for manifest in "$PLUGIN_DIR"/.*-plugin/plugin.json; do
   jq -e 'has("name") and has("version") and has("description")' "$manifest" > /dev/null \

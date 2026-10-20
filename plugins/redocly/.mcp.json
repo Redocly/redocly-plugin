@@ -4,10 +4,12 @@
       "type": "http",
       "url": "https://redocly.com/mcp",
       "headers": {
-        "X-Redocly-MCP-Source": "redocly-plugin"
+        "X-Redocly-MCP-Source": "redocly-plugin",
+        "X-Redocly-Plugin-Version": "0.1.6"
       },
       "http_headers": {
-        "X-Redocly-MCP-Source": "redocly-plugin"
+        "X-Redocly-MCP-Source": "redocly-plugin",
+        "X-Redocly-Plugin-Version": "0.1.6"
       }
     }
   }

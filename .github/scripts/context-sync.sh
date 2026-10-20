@@ -35,6 +35,7 @@ check_version() {
   for manifest in "$PLUGIN_DIR"/.*-plugin/plugin.json; do
     grep -qF "\"version\": \"$versions\"" "$manifest" || fail "$manifest must write the version as \"version\": \"$versions\"."
   done
+  mcp_has_version "$versions" || fail "$PLUGIN_DIR/.mcp.json must send X-Redocly-Plugin-Version: $versions."
 }
 
 check_index() {
@@ -83,6 +84,12 @@ format_names() {
   sed 's/.*/`&`/' | paste -sd ',' - | sed 's/,/, /g'
 }
 
+mcp_has_version() {
+  jq -e --arg version "$1" \
+    '[.mcpServers[] | .headers, .http_headers | .["X-Redocly-Plugin-Version"]] | all(. == $version)' \
+    "$PLUGIN_DIR/.mcp.json" > /dev/null
+}
+
 raise_patch_version() {
   local current next manifest
   current="$(jq -r .version "$PLUGIN_DIR/.claude-plugin/plugin.json")"
@@ -92,6 +99,9 @@ raise_patch_version() {
     rm "$manifest.bak"
     [ "$(jq -r .version "$manifest")" = "$next" ] || fail "Could not set the version in $manifest."
   done
+  sed -i.bak -E "s/\"X-Redocly-Plugin-Version\": \"$current\"/\"X-Redocly-Plugin-Version\": \"$next\"/" "$PLUGIN_DIR/.mcp.json"
+  rm "$PLUGIN_DIR/.mcp.json.bak"
+  mcp_has_version "$next" || fail "Could not set X-Redocly-Plugin-Version in $PLUGIN_DIR/.mcp.json."
   echo "$next"
 }
 
