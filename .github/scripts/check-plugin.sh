@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Checks the marketplaces, the plugin and the MCP Registry entry. Run it from the repository root: .github/scripts/check-plugin.sh [base]
-# It needs claude and mcp-publisher on PATH (brew install mcp-publisher, or .github/scripts/install-mcp-publisher.sh).
-# With a base commit (CI passes the base branch of the pull request), it also checks that a change to the plugin or to server.json raises the version.
+# It needs claude on PATH. With a base commit (CI passes the base branch of the pull request), it also checks that a change to the
+# plugin or to server.json raises the version, and it checks a changed server.json against the MCP Registry, for which it downloads
+# mcp-publisher unless it is on PATH. REGISTRY_CHECK=always runs the registry check without a base.
 set -euo pipefail
 
 PLUGIN_DIR='plugins/redocly'
 REFERENCE="$PLUGIN_DIR/.claude-plugin/plugin.json"
 SERVER_JSON='server.json'
+REGISTRY='https://registry.modelcontextprotocol.io'
 base="${1:-}"
 
 fail() {
@@ -78,15 +80,12 @@ jq -e '.description | type == "string" and length > 0 and length <= 100' "$SERVE
   || fail "$SERVER_JSON needs a description of 1 to 100 characters."
 jq -e '.remotes | length > 0' "$SERVER_JSON" > /dev/null || fail "$SERVER_JSON needs a remote."
 
-echo "$SERVER_JSON points at the MCP server of the plugin, and its icons are images on https URLs."
+echo "$SERVER_JSON points at the MCP server of the plugin, and its icons are https URLs."
 server_url="$(jq -r '.remotes[0].url' "$SERVER_JSON")"
 jq -e --arg url "$server_url" '.mcpServers[] | select(.url == $url)' "$PLUGIN_DIR/.mcp.json" > /dev/null \
   || fail "$SERVER_JSON points at $server_url, which is not in $PLUGIN_DIR/.mcp.json."
-while read -r icon; do
-  [[ "$icon" == https://* ]] || fail "$SERVER_JSON points at the icon $icon, which is not an https URL."
-  curl -fsSIL "$icon" | grep -iq '^content-type: image/' \
-    || fail "$SERVER_JSON points at the icon $icon, which does not serve an image."
-done < <(jq -r '.icons[]?.src' "$SERVER_JSON")
+jq -e '[.icons[]?.src | startswith("https://")] | all' "$SERVER_JSON" > /dev/null \
+  || fail "$SERVER_JSON has an icon that is not an https URL."
 
 if [ -n "$base" ]; then
   git rev-parse --verify --quiet "$base^{commit}" > /dev/null || fail "The base $base is not a commit."
@@ -98,5 +97,27 @@ echo 'Claude Code accepts the marketplace and the plugin.'
 claude plugin validate . --strict
 claude plugin validate "./$PLUGIN_DIR" --strict
 
+# The checks below call the icon host and the MCP Registry, so an outage of either would block every merge.
+# They run only when the change touches server.json, or when REGISTRY_CHECK=always. A registry outage skips the registry check.
+if [ "${REGISTRY_CHECK:-}" != 'always' ] && { [ -z "$base" ] || git diff --quiet "$base" HEAD -- "$SERVER_JSON"; }; then
+  echo "The checks of the icons and against the MCP Registry run only for a change to $SERVER_JSON, or with REGISTRY_CHECK=always."
+  exit 0
+fi
+
+echo "The icons in $SERVER_JSON are images."
+while read -r icon; do
+  curl -fsSIL "$icon" | grep -iq '^content-type: image/' \
+    || fail "$SERVER_JSON points at the icon $icon, which does not serve an image."
+done < <(jq -r '.icons[]?.src' "$SERVER_JSON")
+
 echo "The MCP Registry accepts $SERVER_JSON."
+if ! curl -fsS --max-time 10 --retry 2 "$REGISTRY/v0/health" > /dev/null; then
+  echo "${GITHUB_ACTIONS:+::warning::}The MCP Registry is down, so $SERVER_JSON was not checked against it. The publish workflow checks it again."
+  exit 0
+fi
+if ! command -v mcp-publisher > /dev/null; then
+  publisher_dir="$(mktemp -d)"
+  .github/scripts/install-mcp-publisher.sh "$publisher_dir"
+  PATH="$publisher_dir:$PATH"
+fi
 mcp-publisher validate "$SERVER_JSON"
