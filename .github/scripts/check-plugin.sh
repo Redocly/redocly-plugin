@@ -26,6 +26,12 @@ versions="$(jq -r .version "$PLUGIN_DIR"/.*-plugin/plugin.json | sort -u)"
 [[ "$versions" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "Found these versions: ${versions//$'\n'/, }"
 version="$versions"
 
+echo 'The MCP server sends the plugin version.'
+mcp="$PLUGIN_DIR/.mcp.json"
+jq -e --arg version "$version" \
+  '[.mcpServers[] | .headers, .http_headers | .["X-Redocly-Plugin-Version"]] | all(. == $version)' "$mcp" > /dev/null \
+  || fail "Set X-Redocly-Plugin-Version to $version in headers and http_headers in $mcp."
+
 echo 'Every plugin manifest has a name, a version and a description, and every ./ path in it exists.'
 for manifest in "$PLUGIN_DIR"/.*-plugin/plugin.json; do
   jq -e 'has("name") and has("version") and has("description")' "$manifest" > /dev/null \
