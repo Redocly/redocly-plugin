@@ -29,6 +29,10 @@ npx skills add Redocly/redocly-plugin
 
 MCP server only, in any MCP client: add `https://redocly.com/mcp` as a remote server over Streamable HTTP. The [Redocly MCP server docs](https://redocly.com/docs/realm/customization/mcp-server/redocly-mcp) have the steps for each client.
 
+## MCP Registry
+
+The Redocly MCP server is in the official [MCP Registry](https://registry.modelcontextprotocol.io) as `com.redocly/mcp`. An MCP client that reads the registry can add the server from there. The [GitHub MCP Registry](https://github.com/mcp), which VS Code and GitHub Copilot use, lists it once GitHub completes the onboarding.
+
 ## What you get
 
 - **Skills** that the agent loads when your request matches one: Redocly CLI commands, `redocly.yaml` configuration, custom lint rules, Markdown linting with `redocly recheck`, and Redocly docs projects (setup, pages, and API reference docs). The Redocly [skills index](https://redocly.com/.well-known/agent-skills/index.json) lists them.

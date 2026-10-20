@@ -1,0 +1,42 @@
+name: Publish to MCP Registry
+
+# Publishes server.json to the official MCP Registry at https://registry.modelcontextprotocol.io.
+# A push to main that changes server.json starts it, and a reviewer of the environment approves the run.
+# Run it by hand to retry a failed publish. The registry keeps every version it has seen, so raise the version
+# in server.json with every change. The GitHub MCP Registry syncs from the official registry.
+on:
+  push:
+    branches: [main]
+    paths: [server.json]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mcp-registry-publish
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # The environment holds MCP_PRIVATE_KEY, the Ed25519 private key whose public key is in the TXT record of redocly.com.
+    # Whoever can run a job in this environment can publish anything under com.redocly.*, so the environment must allow
+    # only the main branch and require a reviewer.
+    environment: mcp-registry-publish
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install mcp-publisher
+        run: .github/scripts/install-mcp-publisher.sh
+      - name: Validate server.json
+        run: mcp-publisher validate server.json
+      - name: Log in to the registry as redocly.com
+        env:
+          MCP_PRIVATE_KEY: ${{ secrets.MCP_PRIVATE_KEY }}
+        run: mcp-publisher login dns --domain redocly.com --private-key "$MCP_PRIVATE_KEY"
+      - name: Publish server.json
+        run: |
+          mcp-publisher publish server.json
+          echo "Published $(jq -r '.name + " " + .version' server.json)" | tee -a "$GITHUB_STEP_SUMMARY"

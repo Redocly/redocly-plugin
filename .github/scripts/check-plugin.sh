@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# Checks the marketplaces and the plugin. Run it from the repository root: .github/scripts/check-plugin.sh [base]
-# With a base commit (CI passes the base branch of the pull request), it also checks that a change to the plugin raises the version.
+# Checks the marketplaces, the plugin and the MCP Registry entry. Run it from the repository root: .github/scripts/check-plugin.sh [base]
+# It needs claude on PATH. With a base commit (CI passes the base branch of the pull request), it also checks that a change to the
+# plugin or to server.json raises the version, and it checks a changed server.json against the MCP Registry, for which it downloads
+# mcp-publisher unless it is on PATH. REGISTRY_CHECK=always runs the registry check without a base.
 set -euo pipefail
 
 PLUGIN_DIR='plugins/redocly'
 REFERENCE="$PLUGIN_DIR/.claude-plugin/plugin.json"
+SERVER_JSON='server.json'
+REGISTRY='https://registry.modelcontextprotocol.io'
 base="${1:-}"
 
 fail() {
@@ -16,6 +20,18 @@ fail() {
 different_keys() {
   jq -rn --argjson a "$1" --argjson b "$2" \
     '[$a | keys[] | select(. as $key | $b | has($key)) | select($a[.] != $b[.])] | join(", ")'
+}
+
+# When the change since the base commit touches the path, checks that the version is higher than the one in the JSON file on the base.
+version_raised() {
+  local path="$1" file="$2" version="$3" advice="$4" base_version highest
+  { [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- "$path" && git cat-file -e "$base:$file" 2> /dev/null; } || return 0
+  echo "The version in $file is higher than on $base."
+  base_version="$(git show "$base:$file" | jq -r .version)"
+  highest="$(printf '%s\n%s\n' "$base_version" "$version" | sort -V | tail -1)"
+  if [ "$version" = "$base_version" ] || [ "$highest" != "$version" ]; then
+    fail "This change touches $path. Raise the version above $base_version $advice."
+  fi
 }
 
 echo 'Every JSON file parses.'
@@ -55,18 +71,55 @@ for marketplace in .claude-plugin/marketplace.json .cursor-plugin/marketplace.js
   [ -z "$keys" ] || fail "The $name entry in $marketplace has other values for: $keys"
 done
 
+echo "$SERVER_JSON has the fields that the MCP Registry requires, and its description fits in 100 characters."
+[ -f "$SERVER_JSON" ] || fail "$SERVER_JSON is missing. The MCP Registry entry needs it."
+jq -e '.name | test("^com\\.redocly/[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$")' "$SERVER_JSON" > /dev/null \
+  || fail "$SERVER_JSON needs a name in the form com.redocly/<name>, because the key of the publish workflow proves only redocly.com."
+server_version="$(jq -r .version "$SERVER_JSON")"
+[[ "$server_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "$SERVER_JSON needs an x.y.z version."
+jq -e '.description | type == "string" and length > 0 and length <= 100' "$SERVER_JSON" > /dev/null \
+  || fail "$SERVER_JSON needs a description of 1 to 100 characters."
+jq -e '.remotes | length > 0' "$SERVER_JSON" > /dev/null || fail "$SERVER_JSON needs a remote."
+
+echo "$SERVER_JSON points at the MCP server of the plugin, and its icons are https URLs."
+server_url="$(jq -r '.remotes[0].url' "$SERVER_JSON")"
+jq -e --arg url "$server_url" '.mcpServers[] | select(.url == $url)' "$PLUGIN_DIR/.mcp.json" > /dev/null \
+  || fail "$SERVER_JSON points at $server_url, which is not in $PLUGIN_DIR/.mcp.json."
+jq -e '.icons // [] | type == "array" and all(.[]; .src | type == "string" and startswith("https://"))' "$SERVER_JSON" > /dev/null \
+  || fail "$SERVER_JSON needs icons as a list with an https URL in each src."
+
 if [ -n "$base" ]; then
   git rev-parse --verify --quiet "$base^{commit}" > /dev/null || fail "The base $base is not a commit."
 fi
-if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- "$PLUGIN_DIR" && git cat-file -e "$base:$REFERENCE" 2> /dev/null; then
-  echo "The version is higher than on $base."
-  base_version="$(git show "$base:$REFERENCE" | jq -r .version)"
-  highest="$(printf '%s\n%s\n' "$base_version" "$version" | sort -V | tail -1)"
-  if [ "$version" = "$base_version" ] || [ "$highest" != "$version" ]; then
-    fail "This change touches $PLUGIN_DIR. Raise the version above $base_version in every plugin manifest."
-  fi
-fi
+version_raised "$PLUGIN_DIR" "$REFERENCE" "$version" 'in every plugin manifest'
+version_raised "$SERVER_JSON" "$SERVER_JSON" "$server_version" "in $SERVER_JSON, because the MCP Registry keeps every version it has seen"
 
 echo 'Claude Code accepts the marketplace and the plugin.'
 claude plugin validate . --strict
 claude plugin validate "./$PLUGIN_DIR" --strict
+
+# The checks below call the icon host and the MCP Registry, so an outage of either would block every merge.
+# They run only when the change touches server.json, or when REGISTRY_CHECK=always. A registry outage skips the registry check.
+if [ "${REGISTRY_CHECK:-}" != 'always' ] && { [ -z "$base" ] || git diff --quiet "$base" HEAD -- "$SERVER_JSON"; }; then
+  echo "The checks of the icons and against the MCP Registry run only for a change to $SERVER_JSON, or with REGISTRY_CHECK=always."
+  exit 0
+fi
+
+echo "The icons in $SERVER_JSON are images."
+while read -r icon; do
+  curl -fsSIL "$icon" | grep -iq '^content-type: image/' \
+    || fail "$SERVER_JSON points at the icon $icon, which does not serve an image."
+done < <(jq -r '.icons[]?.src' "$SERVER_JSON")
+
+echo "The MCP Registry accepts $SERVER_JSON."
+if ! curl -fsS --max-time 10 --retry 2 "$REGISTRY/v0/health" > /dev/null; then
+  echo "${GITHUB_ACTIONS:+::warning::}The MCP Registry is down, so $SERVER_JSON was not checked against it. The publish workflow checks it again."
+  exit 0
+fi
+if ! command -v mcp-publisher > /dev/null; then
+  publisher_dir="$(mktemp -d)"
+  trap 'rm -rf "$publisher_dir"' EXIT
+  .github/scripts/install-mcp-publisher.sh "$publisher_dir"
+  PATH="$publisher_dir:$PATH"
+fi
+mcp-publisher validate "$SERVER_JSON"
