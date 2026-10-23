@@ -13,7 +13,7 @@ description: >-
 ## The file is the reference
 
 Put the API description anywhere in the project.
-Realm renders it as reference docs at the path of the file, with a sidebar built from its tags and operations.
+Redocly renders it as reference docs at the path of the file, with a sidebar built from its tags and operations.
 OpenAPI, AsyncAPI, and GraphQL files need no configuration, and WSDL needs the SOAP plugin first, see below.
 
 | File | URL |
@@ -38,13 +38,13 @@ Shape it with `x-tagGroups` and the other extensions below, not with `sidebars.y
 Render the description as it is.
 Hiding operations, with `x-internal` and a decorator or by leaving a tag out of `x-tagGroups`, and reformatting the file are the user's decisions, so ask first.
 
-Full reference: https://redocly.com/docs/realm/content/api-docs/add-openapi-docs.md
+Full reference: https://redocly.com/docs/platform/content/api-docs/add-openapi-docs.md
 
 ## AsyncAPI, GraphQL, and SOAP
 
-- AsyncAPI 3.0 files render like OpenAPI files, with `asyncapi` options and their own extensions: https://redocly.com/docs/realm/content/api-docs/add-asyncapi-docs.md
-- GraphQL SDL files get a sidebar from their queries, mutations, and types, and `graphql.menu` groups them: https://redocly.com/docs/realm/content/api-docs/add-graphql-docs.md
-- SOAP needs `@redocly/portal-plugin-soap-api` and `@redocly/realm` in `package.json`, `plugins: ['@redocly/portal-plugin-soap-api/plugin.js']` in `redocly.yaml`, and `.wsdl` files: https://redocly.com/docs/realm/content/api-docs/add-soap-docs.md
+- AsyncAPI 3.0 files render like OpenAPI files, with `asyncapi` options and their own extensions: https://redocly.com/docs/platform/content/api-docs/add-asyncapi-docs.md
+- GraphQL SDL files get a sidebar from their queries, mutations, and types, and `graphql.menu` groups them: https://redocly.com/docs/platform/content/api-docs/add-graphql-docs.md
+- SOAP needs `@redocly/portal-plugin-soap-api` and `@redocly/framework` in `package.json`, `plugins: ['@redocly/portal-plugin-soap-api/plugin.js']` in `redocly.yaml`, and `.wsdl` files: https://redocly.com/docs/platform/content/api-docs/add-soap-docs.md
 
 ## OpenAPI display options
 
@@ -73,7 +73,7 @@ apis:
 | --- | --- | --- |
 | `layout` | `three-panel` | `stacked` moves the samples into the middle panel |
 | `hideReplay` | `false` | Hide the Try it buttons |
-| `codeSamples.languages` | a default set | Which generated samples to show, in order, by `lang` (`curl`, `JavaScript`, `Python`, ...), and `label` renames a tab. Supported values: https://redocly.com/docs/realm/config/openapi/code-samples.md |
+| `codeSamples.languages` | a default set | Which generated samples to show, in order, by `lang` (`curl`, `JavaScript`, `Python`, ...), and `label` renames a tab. Supported values: https://redocly.com/docs/platform/config/openapi/code-samples.md |
 | `hideDownloadButtons` | `false` | Hide the download links, which does not hide the description |
 | `downloadUrls` | - | Download links: a list of `title` and `url` |
 | `schemaDefinitionsTagName` | - | List all schemas in a sidebar section with this name |
@@ -81,16 +81,16 @@ apis:
 | `sortRequiredPropsFirst` | `false` | Required properties first |
 | `excludeFromSearch` | `false` | Keep the API out of search and `llms.txt` |
 
-All options: https://redocly.com/docs/realm/config/openapi.md
+All options: https://redocly.com/docs/platform/config/openapi.md
 
 An `apis` entry is optional.
 Add one only when an API needs its own lint rules, decorators, or rendering options, or a CLI shortcut name such as `redocly lint cafe_api`.
 Its key is a name, or `name@version`, and `root` is required.
-It does not add a page and does not set the URL: https://redocly.com/docs/realm/config/apis.md
+It does not add a page and does not set the URL: https://redocly.com/docs/platform/config/apis.md
 
 ## Code samples
 
-Realm generates request samples in the configured languages.
+Redocly generates request samples in the configured languages.
 For a language it does not generate, or a hand-written sample, add `x-codeSamples` to the operation.
 `source` is inline code or a `$ref` to a file:
 
@@ -106,7 +106,7 @@ paths:
 
 When `codeSamples.languages` is set, list the sample's `lang` there too, or the sample does not show.
 
-Full reference: https://redocly.com/docs/realm/config/openapi/code-samples.md
+Full reference: https://redocly.com/docs/platform/config/openapi/code-samples.md
 
 ## Try it and the mock server
 
@@ -115,9 +115,9 @@ Hide it for all APIs or one API with `hideReplay`, or for one operation with `x-
 It sends requests through a built-in CORS proxy, so the API needs no CORS headers.
 
 The mock server is on by default and answers with the examples from the description at `/_mock/<path-to-description>/`, for example `/_mock/apis/cafe-api/`.
-Turn it off with `mockServer.off: true`: https://redocly.com/docs/realm/config/mock-server.md
+Turn it off with `mockServer.off: true`: https://redocly.com/docs/platform/config/mock-server.md
 
-Prefilling request values, headers, or auth for Replay is a customization (an ejected `configure.ts`): https://redocly.com/docs/realm/customization/configure-request-values.md
+Prefilling request values, headers, or auth for Replay is a customization (an ejected `configure.ts`): https://redocly.com/docs/platform/customization/configure-request-values.md
 
 ## OpenAPI extensions
 
@@ -141,7 +141,7 @@ x-tagGroups:
     tags: [Customers]
 ```
 
-All extensions: https://redocly.com/docs/realm/content/api-docs/openapi-extensions.md
+All extensions: https://redocly.com/docs/platform/content/api-docs/openapi-extensions.md
 
 ## API content in Markdown pages
 
@@ -156,7 +156,7 @@ Both take the same `descriptionFile` and `operationId` (or `pointer`) attributes
 `json-schema` takes a `schema` object: `{% json-schema schema={ "$ref": "../apis/cafe-api.yaml#/components/schemas/Order" } /%}`.
 Language values are case-sensitive, as in `codeSamples`.
 
-References: https://redocly.com/docs/realm/content/markdoc-tags/openapi-code-sample.md, https://redocly.com/docs/realm/content/markdoc-tags/replay-openapi.md, https://redocly.com/docs/realm/content/markdoc-tags/json-schema.md
+References: https://redocly.com/docs/platform/content/markdoc-tags/openapi-code-sample.md, https://redocly.com/docs/platform/content/markdoc-tags/replay-openapi.md, https://redocly.com/docs/platform/content/markdoc-tags/json-schema.md
 
 ## Verify
 
