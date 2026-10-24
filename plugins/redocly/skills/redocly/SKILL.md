@@ -31,6 +31,7 @@ Redocly makes the tools for API documentation and developer portals.
 | `respect` | Test a live API against an Arazzo description |
 | `eject component` | Copy a theme component into `@theme/` to customize it |
 | `login`, `project clone` | Log in to Redocly, and clone a Redocly-hosted project |
+| `project pr create`, `project pr status` | Open a pull request for the current branch of a Redocly-hosted project, and show its checks and preview URL |
 | `push` | Upload files to a Redocly project from CI with an API key, not the login, so publish with Git instead |
 
 All commands and flags: https://redocly.com/docs/cli/commands.md
@@ -202,6 +203,16 @@ git push -u origin update-quickstart
 
 For a project connected to a Git provider, open the pull request there, and the platform builds a preview for it.
 For a Redocly-hosted project, the platform rejects pushes to the default branch.
-After a successful push, Git prints two the platform links: one to open a pull request for the branch and one to the branch's builds.
-Give both links to the user.
+Open the pull request with Redocly CLI after the push.
+It prints the pull request URL:
+
+```bash
+npx @redocly/cli project pr create --title "Update the quickstart" --body-file - <<'BODY'
+Adds the install step to the quickstart.
+BODY
+```
+
+`npx @redocly/cli project pr status` shows the state, the review decision, the checks, and, a few minutes after the push, the preview URL.
+If the CLI does not know `project pr`, retry once with `npx @redocly/cli@latest`.
+Give the pull request URL to the user, and the preview URL when it is ready.
 Merging the pull request builds and publishes the production site, so the user decides when to merge.

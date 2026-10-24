@@ -147,7 +147,7 @@ All extensions: https://redocly.com/docs/platform/content/api-docs/openapi-exten
 
 Show one operation or schema in a guide with the API content tags:
 
-```markdoc
+```markdoc {% process=false %}
 {% openapi-code-sample descriptionFile="../apis/cafe-api.yaml" operationId="createOrder" language="curl" /%}
 ```
 
