@@ -14,7 +14,7 @@ The skills are copies of the skills in the Redocly [skills index](https://redocl
 `.mcp.json` registers the Redocly MCP server at `https://redocly.com/mcp` over HTTP.
 The server searches and reads the current Redocly documentation.
 It only reads data, except when it sends a report about a wrong or incomplete page to the Redocly documentation team.
-Redocly receives the tool calls that the agent sends, not your conversation. The [Redocly MCP server docs](https://redocly.com/docs/realm/customization/mcp-server/redocly-mcp) and the [Redocly Privacy Notice](https://redocly.com/privacy-notice) describe the data it keeps.
+Redocly receives the tool calls that the agent sends, not your conversation. The [Redocly MCP server docs](https://redocly.com/docs/platform/ai-ready/use-redocly-with-ai-clients#data-and-privacy) and the [Redocly Privacy Notice](https://redocly.com/privacy-notice) describe the data it keeps.
 The plugin runs no code on your machine.
 
 ## Install

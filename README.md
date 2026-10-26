@@ -27,7 +27,7 @@ Skills only, in any client that reads Agent Skills:
 npx skills add Redocly/redocly-plugin
 ```
 
-MCP server only, in any MCP client: add `https://redocly.com/mcp` as a remote server over Streamable HTTP, or install `com.redocly/mcp` from the [MCP Registry](https://registry.modelcontextprotocol.io). The [Redocly MCP server docs](https://redocly.com/docs/realm/customization/mcp-server/redocly-mcp) have the steps for each client.
+MCP server only, in any MCP client: add `https://redocly.com/mcp` as a remote server over Streamable HTTP, or install `com.redocly/mcp` from the [MCP Registry](https://registry.modelcontextprotocol.io). The [Redocly MCP server docs](https://redocly.com/docs/platform/ai-ready/use-redocly-with-ai-clients#install) have the steps for each client.
 
 ## What you get
 

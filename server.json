@@ -3,13 +3,13 @@
   "name": "com.redocly/mcp",
   "title": "Redocly",
   "description": "Search and read the Redocly product docs, guides and blog on redocly.com, and report a wrong page.",
-  "websiteUrl": "https://redocly.com/docs/realm/customization/mcp-server/redocly-mcp",
+  "websiteUrl": "https://redocly.com/docs/platform/ai-ready/use-redocly-with-ai-clients",
   "repository": {
     "url": "https://github.com/Redocly/redocly-plugin",
     "source": "github",
     "id": "1420889732"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icons": [
     {
       "src": "https://cdn.redocly.com/images/logo.png",
