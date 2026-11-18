@@ -49,7 +49,7 @@ No tool changes your Redocly account or your projects: the server sends only rea
 
 When your agent needs to call the Redocly platform API, it gives you a link to a page on redocly.com, where you enter a Redocly API key.
 Your agent does not see the key.
-Redocly stores the key encrypted for 24 hours after you save it, or for 7 days if you are signed in, and sends it only to the Redocly platform API.
+Redocly stores the key encrypted for 24 hours after you save it, and sends it only to the Redocly platform API.
 In the chat where you entered the key, ask your agent to remove your API credentials.
 You can also revoke the key in Redocly at any time.
 

@@ -14,7 +14,7 @@ The skills are copies of the skills in the Redocly [skills index](https://redocl
 `.mcp.json` registers the Redocly MCP server at `https://redocly.com/mcp` over HTTP.
 The server searches and reads the current Redocly documentation.
 With a Redocly API key that you enter on a page on redocly.com, it can also read your Redocly projects through the Redocly platform API.
-Redocly stores the key encrypted for 24 hours, or for 7 days if you are signed in. To delete it, ask the agent to remove your API credentials in the same chat, or revoke the key in Redocly.
+Redocly stores the key encrypted for 24 hours. To delete it, ask the agent in the same chat to remove your API credentials. You can also revoke the key in Redocly.
 It only reads data, except when it sends a report about a wrong or incomplete page to the Redocly documentation team.
 Redocly receives the tool calls that the agent sends, not your conversation. The [Redocly docs for AI clients](https://redocly.com/docs/platform/ai-ready/use-redocly-with-ai-clients#data-and-privacy) and the [Redocly Privacy Notice](https://redocly.com/privacy-notice) describe the data it keeps.
 The plugin runs no code on your machine.
