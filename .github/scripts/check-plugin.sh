@@ -44,9 +44,19 @@ version="$versions"
 
 echo 'The MCP server sends the plugin version.'
 mcp="$PLUGIN_DIR/.mcp.json"
-jq -e --arg version "$version" \
-  '[.mcpServers[] | .headers, .http_headers | .["X-Redocly-Plugin-Version"]] | all(. == $version)' "$mcp" > /dev/null \
-  || fail "Set X-Redocly-Plugin-Version to $version in headers and http_headers in $mcp."
+codex="$PLUGIN_DIR/.codex-plugin/plugin.json"
+jq -e --arg version "$version" '[.mcpServers[].headers["X-Redocly-Plugin-Version"]] | length > 0 and all(. == $version)' "$mcp" > /dev/null \
+  || fail "Set X-Redocly-Plugin-Version to $version in the headers in $mcp."
+
+echo 'The Codex manifest has the same MCP servers inline, with http_headers, because Codex reads no other header field.'
+jq -e --slurpfile claude "$mcp" \
+  '(.mcpServers | type) == "object" and (.mcpServers | map_values({url, headers: .http_headers})) == ($claude[0].mcpServers | map_values({url, headers}))' \
+  "$codex" > /dev/null \
+  || fail "Set mcpServers in $codex to the servers of $mcp as an inline object, with http_headers in place of headers."
+
+echo 'The Claude MCP config has only the server fields that the Claude plugin directory allows.'
+jq -e '[.mcpServers[] | keys[] | select(IN("type", "url", "headers", "timeout", "alwaysLoad", "oauth", "name", "title", "displayName", "description") | not)] == []' "$mcp" > /dev/null \
+  || fail "$mcp has a server field that the Claude plugin directory refuses. Put Codex-only fields in the mcpServers of $codex."
 
 echo 'Every plugin manifest has a name, a version and a description, and every ./ path in it exists.'
 for manifest in "$PLUGIN_DIR"/.*-plugin/plugin.json; do
@@ -61,7 +71,9 @@ echo "The plugin manifests and the marketplace entries agree with $REFERENCE."
 reference="$(jq -c . "$REFERENCE")"
 name="$(jq -r .name <<< "$reference")"
 for manifest in "$PLUGIN_DIR"/.*-plugin/plugin.json; do
-  keys="$(different_keys "$reference" "$(jq -c . "$manifest")")"
+  filter=.
+  [ "$manifest" != "$codex" ] || filter='del(.mcpServers)'
+  keys="$(different_keys "$reference" "$(jq -c "$filter" "$manifest")")"
   [ -z "$keys" ] || fail "$manifest has other values for: $keys"
 done
 for marketplace in .claude-plugin/marketplace.json .cursor-plugin/marketplace.json .agents/plugins/marketplace.json; do
