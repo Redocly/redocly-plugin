@@ -11,7 +11,7 @@ The skills are copies of the skills in the Redocly [skills index](https://redocl
 
 ## MCP server
 
-`.mcp.json` registers the Redocly MCP server at `https://redocly.com/mcp` over HTTP.
+`.mcp.json` registers the Redocly MCP server at `https://redocly.com/mcp` over HTTP. For Codex, `.codex-plugin/plugin.json` registers the same server.
 The server searches and reads the current Redocly documentation.
 It only reads data, except when it sends a report about a wrong or incomplete page to the Redocly documentation team.
 Redocly receives the tool calls that the agent sends, not your conversation. The [Redocly MCP server docs](https://redocly.com/docs/realm/customization/mcp-server/redocly-mcp) and the [Redocly Privacy Notice](https://redocly.com/privacy-notice) describe the data it keeps.

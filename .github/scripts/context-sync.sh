@@ -35,7 +35,7 @@ check_version() {
   for manifest in "$PLUGIN_DIR"/.*-plugin/plugin.json; do
     grep -qF "\"version\": \"$versions\"" "$manifest" || fail "$manifest must write the version as \"version\": \"$versions\"."
   done
-  mcp_has_version "$versions" || fail "$PLUGIN_DIR/.mcp.json must send X-Redocly-Plugin-Version: $versions."
+  mcp_has_version "$versions" || fail "The MCP servers in $PLUGIN_DIR must send X-Redocly-Plugin-Version: $versions."
 }
 
 check_index() {
@@ -85,13 +85,14 @@ format_names() {
 }
 
 mcp_has_version() {
-  jq -e --arg version "$1" \
-    '[.mcpServers[] | .headers, .http_headers | .["X-Redocly-Plugin-Version"]] | all(. == $version)' \
-    "$PLUGIN_DIR/.mcp.json" > /dev/null
+  jq -e --arg version "$1" '[.mcpServers[].headers["X-Redocly-Plugin-Version"]] | length > 0 and all(. == $version)' \
+    "$PLUGIN_DIR/.mcp.json" > /dev/null \
+    && jq -e --arg version "$1" '[.mcpServers[].http_headers["X-Redocly-Plugin-Version"]] | length > 0 and all(. == $version)' \
+      "$PLUGIN_DIR/.codex-plugin/plugin.json" > /dev/null
 }
 
 raise_patch_version() {
-  local current next manifest
+  local current next manifest file
   current="$(jq -r .version "$PLUGIN_DIR/.claude-plugin/plugin.json")"
   next="${current%.*}.$((${current##*.} + 1))"
   for manifest in "$PLUGIN_DIR"/.*-plugin/plugin.json; do
@@ -99,9 +100,11 @@ raise_patch_version() {
     rm "$manifest.bak"
     [ "$(jq -r .version "$manifest")" = "$next" ] || fail "Could not set the version in $manifest."
   done
-  sed -i.bak -E "s/\"X-Redocly-Plugin-Version\": \"$current\"/\"X-Redocly-Plugin-Version\": \"$next\"/" "$PLUGIN_DIR/.mcp.json"
-  rm "$PLUGIN_DIR/.mcp.json.bak"
-  mcp_has_version "$next" || fail "Could not set X-Redocly-Plugin-Version in $PLUGIN_DIR/.mcp.json."
+  for file in "$PLUGIN_DIR/.mcp.json" "$PLUGIN_DIR/.codex-plugin/plugin.json"; do
+    sed -i.bak -E "s/\"X-Redocly-Plugin-Version\": \"$current\"/\"X-Redocly-Plugin-Version\": \"$next\"/" "$file"
+    rm "$file.bak"
+  done
+  mcp_has_version "$next" || fail "Could not set X-Redocly-Plugin-Version in the MCP servers of $PLUGIN_DIR."
   echo "$next"
 }
 
