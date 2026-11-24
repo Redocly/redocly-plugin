@@ -72,8 +72,11 @@ reference="$(jq -c . "$REFERENCE")"
 name="$(jq -r .name <<< "$reference")"
 for manifest in "$PLUGIN_DIR"/.*-plugin/plugin.json; do
   filter=.
+  expected="$reference"
   [ "$manifest" != "$codex" ] || filter='del(.mcpServers)'
-  keys="$(different_keys "$reference" "$(jq -c "$filter" "$manifest")")"
+  # Cursor's plugin schema allows only name and email in author.
+  [ "$manifest" != "$PLUGIN_DIR/.cursor-plugin/plugin.json" ] || expected="$(jq -c 'del(.author.url)' <<< "$reference")"
+  keys="$(different_keys "$expected" "$(jq -c "$filter" "$manifest")")"
   [ -z "$keys" ] || fail "$manifest has other values for: $keys"
 done
 for marketplace in .claude-plugin/marketplace.json .cursor-plugin/marketplace.json .agents/plugins/marketplace.json; do
